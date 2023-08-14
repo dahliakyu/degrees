@@ -91,9 +91,53 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # Initialize the Frontier
+    start = Node(state=source, parent=None, action=None)
+    # Using the queue method to find the shortest path
+    frontier = QueueFrontier()
+    frontier.add(start)
+    # Initialize an empty explored set
+    explored = set()
+    # Keep looping until the solution is found
+    while True:
+        # If nothing left in the frontier, then no path
+        if frontier.empty():
+            raise Exception("no solution")
+        # Choose a node from the frontier
+        node = frontier.remove()
+        # Mark node as explored
+        explored.add(node.state)
+        # Find current neighbours
+        neighbours = neighbors_for_person(node.state)
+        # Add neighbours to frontier
+        for movie_id, person_id in neighbours:
+            # Make sure the state neither been explored nor exists in the frontier
+            # already
+            if not frontier.contains_state(person_id) and person_id not in explored:
+                # Set the state as the person id of the neighbour, the parent as the
+                # examined node and the action as the movie that they acted together in
+                child = Node(state=person_id, parent=node, action=movie_id)
+                # If node is then the solution is found
+                if child.state == target:
+                    # Create empty list for the movies and people along the way
+                    movies = []
+                    people = []
+                    solution = []
+                    while child.parent is not None:
+                        # Add all the prior nodes leading to child until the very
+                        # beginning
+                        movies.append(child.action)
+                        people.append(child.state)
+                        child = child.parent
+                    # Adjust the order of the result according to the expected output
+                    movies.reverse()
+                    people.reverse()
+                    x = zip(movies, people)
+                    for movie, person in x:
+                        solution.append((movie, person))
+                    return solution
 
-    # TODO
-    raise NotImplementedError
+                frontier.add(child)
 
 
 def person_id_for_name(name):
